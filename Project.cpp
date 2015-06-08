@@ -57,6 +57,8 @@ public:
 	T &operator[](int index);
 	friend std::ostream & operator<< <T>(std::ostream &os, const MyList<T> &obj);
 
+	void quickSort1(int l, int r);
+	void quickSort2(int l, int r);
 	void sort(bool less=true);
 	void reverse();
 
@@ -322,6 +324,59 @@ void MyList<T>::reverse()
 	}
 }
 
+template <class T>
+void MyList<T>::sort(bool less)
+{
+	if(less) quickSort1(0, size-1);
+	else quickSort2(0, size-1);
+}
+
+template <class T>
+void MyList<T>::quickSort1(int l, int r)  
+{  
+    if (l< r)  
+    {        
+        int i = l, j = r, x = a[l];  
+        while (i < j)  
+        {  
+            while(i < j && a[j]>=x)
+                j--;   
+            if(i < j)  
+                a[i++] = a[j];  
+            while(i < j && a[i]<x) 
+                i++;   
+            if(i < j)  
+                a[j--] = a[i];  
+        }  
+        a[i] = x;  
+        quickSort1(l, i - 1);
+        quickSort1(i + 1, r);  
+    }  
+}  
+
+template <class T>
+void MyList<T>::quickSort2(int l, int r)  
+{  
+    if (l< r)  
+    {        
+        int i = l, j = r, x = a[l];  
+        while (i < j)  
+        {  
+            while(i < j && a[j]<=x)
+                j--;   
+            if(i < j)  
+                a[i++] = a[j];  
+            while(i < j && a[i]>x) 
+                i++;   
+            if(i < j)  
+                a[j--] = a[i];  
+        }  
+        a[i] = x;  
+        quickSort2(l, i - 1);
+        quickSort2(i + 1, r);  
+    }  
+}  
+
 using namespace std;
 int main(){
 	MyList<int> a, b;
@@ -329,7 +384,7 @@ int main(){
 	for (i=0; i<5; ++i)
 		a.push(i);
 	a[3] = 15; 
-	//a.sort(); 
+	a.sort(); 
 	a.reverse(); 
 	a += 12; 
 	for (i=0; i<a.get_size(); ++i)
