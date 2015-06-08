@@ -18,6 +18,17 @@ inline const char* pop_error::mesg()
 	return "Error: you've popped an empty list!";
 }
 
+class cross_error
+{
+public:
+	const char* mesg();
+};
+
+inline const char* cross_error::mesg()
+{
+	return "Error: you've crossed the boundary!";
+} 
+
 template <class T=int> class MyList;
 
 template <class T=int>
@@ -193,13 +204,24 @@ T MyList<T>::pop()
 template <class T>
 void MyList<T>::insert(int index, const T &item)
 {
-	if (size==capacity) double_space();
-	for (int i=size; i>index; --i){
-		a[i]=a[i-1];
+	try{
+		if(index<0){
+			if(index+size<0) throw cross_error();
+			else index=index+size;
+		}
+		if(index>size) throw cross_error();
+		
+		if (size==capacity) double_space();
+		for (int i=size; i>index; --i){
+			a[i]=a[i-1];
+		}
+		++size;
+		a[index]=item;
 	}
-	++size;
-	a[index]=item;
-	
+	catch (cross_error &ce)
+	{
+		std::cout << ce.mesg() << std::endl;
+	}
 }
 
 template <class T>
@@ -214,13 +236,30 @@ void MyList<T>::clean()
 template <class T>
 void MyList<T>::erase(int start, int end)
 {
-	for (int i=0; i<size-end-1; ++i){
-		a[start+i]=a[end+1+i];
+	try{
+		if(start<0){
+			if(start+size<0) throw cross_error();
+			else start=start+size;
+		}
+		if(end<0){
+			if(end+size<0) throw cross_error();
+			else end=end+size;
+		}
+		if(start>=size||end>=size) throw cross_error();
+		if(start>end) throw cross_error();
+		
+		for (int i=0; i<size-end-1; ++i){
+			a[start+i]=a[end+1+i];
+		}
+		for (int i=0; i<end-start+1; ++i){
+			a[start-end+size-1+i].~T();
+		}
+		size=size-(end-start+1);
 	}
-	for (int i=0; i<end-start+1; ++i){
-		a[start-end+size-1+i].~T();
+	catch (cross_error &ce)
+	{
+		std::cout << ce.mesg() << std::endl;
 	}
-	size=size-(end-start+1);
 }
 
 template <class T>
@@ -232,7 +271,19 @@ int MyList<T>::get_size()
 template <class T>
 T MyList<T>::get_item(int index) const
 {
-	return a[index];
+	try{
+		if(index<0){
+			if(index+size<0) throw cross_error();
+			else index=index+size;
+		}
+		if(index>=size) throw cross_error();
+		
+		return a[index];
+	}
+	catch (cross_error &ce)
+	{
+		std::cout << ce.mesg() << std::endl;
+	}
 }
 
 template <class T>
@@ -240,30 +291,41 @@ MyList<T> MyList<T>::get_item(int start, int end) const
 {
 	MyList<T> temp;
 	
-	if (end<0){
-		if (size+end<start) {
+	try{
+		if(start<0){
+			if(start+size<0) throw cross_error();
+			else start=start+size;
+		}
+		if(end<0){
+			if(end+size<0) throw cross_error();
+			else end=end+size;
+		}
+		if(start>=size||end>=size) throw cross_error();
+		
+		if(start>end){
 			temp.size=0;
 			temp.capacity=0;
 			temp.a=new T [size];
 			return temp;
 		}
-		end=size+end;
+		temp.size=end-start+1;
+		temp.capacity=end-start+1;
+		temp.a=new T [capacity];
+		for (int i=0; i<temp.size; ++i){
+			temp.a[i]=a[start+i];
+		}
+		return temp;
 	}
-	
-	temp.size=end-start+1;
-	temp.capacity=end-start+1;
-	temp.a=new T [capacity];
-	for (int i=0; i<temp.size; ++i){
-		temp.a[i]=a[start+i];
+	catch (cross_error &ce)
+	{
+		std::cout << ce.mesg() << std::endl;
 	}
-	
-	return temp;
 }
 
 template <class T>
 int MyList<T>::count(const T &item)
 {
-	int icount;
+	int icount=0;
 	
 	for (int i=0; i<size; ++i){
 		if (a[i]==item) ++icount;
@@ -325,10 +387,19 @@ MyList<T> &MyList<T>::operator+=(const MyList &l)
 template <class T>
 T &MyList<T>::operator[](int index)
 {
-	if (index<0||index>=size){
+	try{
+		if(index<0){
+			if(index+size<0) throw cross_error();
+			else index=index+size;
+		}
+		if(index>=size) throw cross_error();
 		
+		return a[index];
 	}
-	return a[index];
+	catch (cross_error &ce)
+	{
+		std::cout << ce.mesg() << std::endl;
+	}
 }
 
 template <class T>
