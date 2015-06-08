@@ -7,6 +7,17 @@
 
 #include <iostream>
 
+class pop_error
+{
+public:
+	const char* mesg();
+};
+
+inline const char* pop_error::mesg()
+{
+	return "Error: you've popped an empty list!";
+}
+
 template <class T=int> class MyList;
 
 template <class T=int>
@@ -166,10 +177,17 @@ void MyList<T>::push(const T &item)
 template <class T>
 T MyList<T>::pop()
 {
-	T temp;
-	temp=a[size-1];
-	a[--size].~T();
-	return temp;
+	try{
+		if(size==0) throw pop_error();
+		T temp;
+		temp=a[size-1];
+		a[--size].~T();
+		return temp;
+	}
+	catch (pop_error &pe)
+	{
+		std::cout << pe.mesg() << std::endl;
+	}
 }
 
 template <class T>
@@ -334,46 +352,46 @@ void MyList<T>::sort(bool less)
 template <class T>
 void MyList<T>::quickSort1(int l, int r)  
 {  
-    if (l< r)  
+    if (l<r)  
     {        
-        int i = l, j = r, x = a[l];  
-        while (i < j)  
+        int i=l, j=r, x=a[l];  
+        while (i<j)  
         {  
-            while(i < j && a[j]>=x)
+            while(i<j && a[j]>=x)
                 j--;   
-            if(i < j)  
+            if(i<j)  
                 a[i++] = a[j];  
-            while(i < j && a[i]<x) 
+            while(i<j && a[i]<x) 
                 i++;   
-            if(i < j)  
+            if(i<j)  
                 a[j--] = a[i];  
         }  
         a[i] = x;  
-        quickSort1(l, i - 1);
-        quickSort1(i + 1, r);  
+        quickSort1(l, i-1);
+        quickSort1(i+1, r);  
     }  
 }  
 
 template <class T>
 void MyList<T>::quickSort2(int l, int r)  
 {  
-    if (l< r)  
+    if (l<r)  
     {        
-        int i = l, j = r, x = a[l];  
-        while (i < j)  
+        int i=l, j=r, x=a[l];  
+        while (i<j)  
         {  
-            while(i < j && a[j]<=x)
+            while(i<j && a[j]<=x)
                 j--;   
-            if(i < j)  
+            if(i<j)  
                 a[i++] = a[j];  
-            while(i < j && a[i]>x) 
+            while(i<j && a[i]>x) 
                 i++;   
-            if(i < j)  
+            if(i<j)  
                 a[j--] = a[i];  
         }  
         a[i] = x;  
-        quickSort2(l, i - 1);
-        quickSort2(i + 1, r);  
+        quickSort2(l, i-1);
+        quickSort2(i+1, r);  
     }  
 }  
 
