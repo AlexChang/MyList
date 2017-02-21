@@ -1,3 +1,2 @@
 # MyList
-// Alex Chang
-// Final Project
+The final project of CS125 Program Design
